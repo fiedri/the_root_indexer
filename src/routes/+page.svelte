@@ -7,6 +7,8 @@
     import { IconBolt } from "@tabler/icons-svelte";
     import { IconTag } from "@tabler/icons-svelte";
     import { IconSearch } from "@tabler/icons-svelte";
+    let {data} = $props()
+    let user = $derived(data.session?.user)
     let cards = [
         {
             icon: IconBolt,
@@ -24,8 +26,8 @@
         }
     ]
 </script>
-<Navbar/>
-<Hero/>
+<Navbar {user}/>
+<Hero {user}/>
 <section class="min-h-[80vh] bg-secondary py-20 px-6">
     <h2 class="text-center md:text-3xl text-2xl tracking-tight font-bold capitalize mb-8 leading-tight">Construido para desarrolladores.</h2>
     <div class="md:w-[70%] mx-auto flex flex-col">
@@ -46,6 +48,9 @@
         <h2 class="text-center md:text-3xl text-2xl tracking-tight font-bold capitalize mb-1 leading-tight">¿Listo para organizar tus conocimientos?</h2>
     <p class="text-muted-foreground tracking-tight font-light text-md">Únate a los desarrolladores que están construyendo su base de conocimientos personal.</p>
     </div>
-    <Button variant="primary">Crear cuenta &rarr;</Button>
+    
+    <a href={user? "/dashboard":"/auth/sign-up"} class="w-auto" data-sveltekit-preload-data="hover">
+        <Button variant="primary">{user? "Ir a mi cuenta":"Crear cuenta"} &rarr;</Button>
+    </a>
 </section>
 <Footer/>

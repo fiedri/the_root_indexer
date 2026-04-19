@@ -61,14 +61,14 @@ export const getCollectionWithLinksById = async (collectionId: string, userId: s
         .leftJoin(collectionLinks, eq(collections.id, collectionLinks.collectionId))
         .leftJoin(links, eq(collectionLinks.linkId, links.id))
         .where(
-            and(
                 eq(collections.id, collectionId),
-                eq(collections.userId, userId)
-            )
         );
-
-    if (result.length === 0) return null;
-
+    
+        
+        if (result.length === 0) return null;
+        if(!result[0].collection.isPublic && result[0].collection.userId !== userId) {
+            throw new Error('Unauthorized');
+        }
     return {
         ...result[0].collection,
         links: result.map(r => r.link).filter(l => l !== null)
@@ -122,17 +122,25 @@ export const updateCollection = async (userId: string, collectionId: string, col
     });
 }
 
-export const deleteCollection = async (userId: string, collectionId: string)=>{
-    return await db.transaction(async (tx)=>{
-        const [collection] = await tx.select().from(collections).where(
+export const deleteCollection = async (userId: string, collectionId: string) => {
+    // El CASCADE en la base de datos se encarga de borrar collectionLinks automáticamente.
+    return await db.delete(collections)
+        .where(
             and(
                 eq(collections.id, collectionId),
                 eq(collections.userId, userId)
             )
         )
-        if (!collection) return null;
-
-        await tx.delete(collectionLinks).where(eq(collectionLinks.collectionId, collectionId));
-        return await tx.delete(collections).where(eq(collections.id, collectionId)).returning();
-    })
+        .returning();
 }
+
+export const getAllCollectionLinks = async (userId: string) => {
+    return await db
+        .select({
+            collectionId: collectionLinks.collectionId,
+            linkId: collectionLinks.linkId
+        })
+        .from(collectionLinks)
+        .innerJoin(collections, eq(collectionLinks.collectionId, collections.id))
+        .where(eq(collections.userId, userId));
+};

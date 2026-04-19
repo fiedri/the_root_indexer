@@ -1,83 +1,268 @@
 <script lang="ts">
-  import { IconExternalLink, IconPencil, IconTrash } from "@tabler/icons-svelte";
+  import { IconExternalLink, IconPencil, IconTrash, IconCopy, IconCheck } from "@tabler/icons-svelte";
   import { getTagColor } from "./tags/tagColors";
-  interface Props{
-    favicon_url?: string,
-    title: string,
-    domain: string,
-    description?: string,
-    tags: Array<string>,
-    url: string,
-    onEdit: ()=> void,
-    onDelete: ()=> void,
+  import type { Tagt } from "$lib/types/db";
+  import { cn } from "$lib/utils";
+  import faviconFallback from "$lib/assets/favicon.svg";
+  import ModalContainer from "./container/ModalContainer.svelte";
+  import Input from "./input/input.svelte";
+  import Textarea from "./textarea/textarea.svelte";
+  import { uiState } from "$lib/state.svelte";
+  import Button from "./button/Button.svelte";
+  import { enhance } from "$app/forms";
+
+  interface Props {
+    id: string
+    favicon_url?: string;
+    title: string;
+    domain: string | undefined;
+    description?: string;
+    tags: Array<Tagt>;
+    url: string;
+    onEdit?: () => void;
+    onDelete?: (id: string) => void;
   }
 
-  let { favicon_url, title, domain, description, tags, url, onEdit, onDelete}: Props = $props();
-  import favicon from "$lib/assets/favicon.svg";
- 
-  const colors = $derived(tags.reduce((acc, current) => {
-    const tagName = current.name;
-    acc[tagName] = getTagColor(tagName);
-    return acc;
-  }, {}));
-  console.log(colors);
-  const displayFavicon = $derived(favicon_url || favicon);
+  let { id, favicon_url, title, domain, description, tags, url, onEdit, onDelete }: Props = $props();
+
+  let copied = $state(false);
+  let faviconError = $state(false);
+
+  const displayDomain = $derived(
+    domain || 
+    (() => {
+      try {
+        return new URL(url).hostname.replace(/^www\./, "");
+      } catch {
+        return "";
+      }
+    })()
+  );
+
+  const colors = $derived(
+    tags.reduce((acc, current) => {
+      const tagName = current.name;
+      acc[tagName] = getTagColor(tagName);
+      return acc;
+    }, {} as Record<string, any>)
+  );
+
+  const displayFavicon = $derived(faviconError || !favicon_url ? faviconFallback : favicon_url);
+
+  async function copyToClipboard() {
+    try {
+      await navigator.clipboard.writeText(url);
+      copied = true;
+      setTimeout(() => (copied = false), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  }
+
+  function handleImageError() {
+    faviconError = true;
+  }
+  let isEditing = $state(false);
+
+  let selectedTagIds = $state(new Set<string>());
+
+  $effect(() => {
+    if (isEditing) {
+      selectedTagIds = new Set(tags.map(t => t.id));
+    }
+  });
+
+  function toggleTag(tagId: string) {
+    if (selectedTagIds.has(tagId)) {
+      selectedTagIds.delete(tagId);
+    } else {
+      selectedTagIds.add(tagId);
+    }
+    selectedTagIds = new Set(selectedTagIds);
+  }
 </script>
 
 <article
-  class="group relative flex flex-col gap-4 rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:border-primary/50"
+  class="group relative flex flex-col gap-4 rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:border-primary/50 hover:shadow-md w-full ring-1 ring-foreground/5 min-h-30 justify-start"
 >
-  <div class="flex items-start gap-4">
-    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-background border border-border/50">
-      <img src={displayFavicon} alt="" class="h-6 w-6 object-contain" />
+  <div class="flex items-start gap-3">
+    <!-- Favicon Container -->
+    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 shadow-inner overflow-hidden transition-all group-hover:border-primary/30">
+      <img 
+        src={displayFavicon} 
+        alt="" 
+        class="h-7 w-7 object-contain transition-transform duration-300 group-hover:scale-110" 
+        onerror={handleImageError}
+      />
     </div>
 
     <div class="flex flex-1 flex-col min-w-0">
-      <div class="flex items-center justify-between gap-2">
-        <a 
-          href={url} 
-          target="_blank" 
-          class="flex items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-primary min-w-0"
-        >
-          <span class="truncate text-base">{title}</span>
-          <IconExternalLink size={16} class="shrink-0 opacity-70" />
-        </a>
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex flex-col min-w-0">
+          <a 
+            href={url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="flex items-center gap-1.5 font-bold text-foreground transition-colors hover:text-primary min-w-0"
+            title={title}
+          >
+            <span class="truncate text-lg leading-tight tracking-tight">{title}</span>
+            <IconExternalLink size={16} class="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" />
+          </a>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40 mt-1">{displayDomain}</p>
+        </div>
 
-        <div class="flex items-center gap-1 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
+        <div class="flex items-center gap-1 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 shrink-0">
           <button 
-            onclick={onEdit}
-            class="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
-            aria-label="Editar"
+            onclick={copyToClipboard}
+            class={cn(
+              "flex h-8 w-8 items-center justify-center rounded-lg transition-all",
+              copied ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20" : "text-muted-foreground hover:bg-secondary hover:text-primary"
+            )}
+            title={copied ? "¡Copiado!" : "Copiar enlace"}
+            aria-label="Copiar enlace"
           >
-            <IconPencil size={18} />
+            {#if copied}
+              <IconCheck size={18} />
+            {:else}
+              <IconCopy size={18} />
+            {/if}
           </button>
-          <button 
-            onclick={onDelete}
-            class="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            aria-label="Eliminar"
-          >
-            <IconTrash size={18} />
-          </button>
+
+          <!-- {#if onEdit} -->
+            <button 
+              onclick={()=>isEditing=!isEditing}
+              class="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-secondary hover:text-primary"
+              title="Editar"
+              aria-label="Editar"
+            >
+              <IconPencil size={18} />
+            </button>
+          <!-- {/if} -->
+
+          {#if onDelete}
+            
+              <button 
+              onclick={()=>onDelete(id)}
+              class="flex h-8 w-8 items-center justify-center rounded-lg sm:text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive
+              bg-destructive/10 text-destructive sm:bg-transparent"
+              title="Eliminar"
+              aria-label="Eliminar"
+            >
+              <IconTrash size={18} />
+            </button>
+            
+          {/if}
         </div>
       </div>
 
-      <p class="text-sm leading-none text-muted-foreground/70">{domain}</p>
-
       {#if description}
-        <p class="mt-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+        <p class="mt-2.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground/80 font-medium">
           {description}
         </p>
       {/if}
 
-      <div class="mt-4 flex flex-wrap gap-2">
-        {#each tags as tag (tag.id)}
-          <button class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium text-foreground border-l-3
-          {colors[tag.name].border}
-          cursor-pointer hover:bg-primary transition-colors hover:text-secondary">
-            {tag.name}
-          </button>
-        {/each}
-      </div>
+      {#if tags && tags.length > 0}
+        <div class="mt-4 flex flex-wrap gap-2">
+          {#each tags as tag (tag.id)}
+            {@const isFilterActive = uiState.isTagFilterActive(tag.id)}
+            {@const tagColor = getTagColor(tag.name)}
+            <button 
+              onclick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uiState.toggleFilterTag(tag.id);
+              }}
+              class={cn(
+                "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-bold border-l-3 transition-all cursor-pointer",
+                isFilterActive 
+                  ? `${tagColor.bgActive} text-black ${tagColor.borderActive || tagColor.border}`
+                  : `${tagColor.bg} ${tagColor.text} ${tagColor.border}`,
+                "hover:brightness-90 active:scale-95"
+              )}
+            >
+              {tag.name}
+              {#if isFilterActive}
+                <IconCheck size={12} stroke={3} />
+              {/if}
+            </button>
+          {/each}
+        </div>
+      {/if}
     </div>
   </div>
 </article>
+{#if isEditing}
+<ModalContainer close={()=>isEditing=false}>
+  <form 
+    action="?/updateLink" 
+    method="POST"
+    class="p-6"
+    use:enhance={() => {
+      // Cerramos el modal inmediatamente
+      isEditing = false;
+      return async ({ update }) => {
+        await update();
+      };
+    }}
+  >
+  <input type="hidden" name='id' value={id}>
+    <h2 class="text-xl font-bold">Editar</h2>
+    <p class="text-sm font-light text-muted-foreground">Edita titulo, etiquetas y descripcion para este link</p>
+    <div class="p-3 border-primary/10 border rounded-2xl mt-10">
+      <div class="flex flex-row items-center gap-3">
+        <img src="{favicon_url}" alt="" class="rounded-xl h-10 w-10">
+        <span class="uppercase text-muted-foreground text-xs">{domain}</span>
+      </div>
+      <div class="flex flex-col gap-2 mt-3 mb-3">
+        <div>
+                  <label for="titulo" class="uppercase text-xs">Titulo</label>
+        <Input type="text" id="titulo" name="titulo" bind:value={title}/>
+        </div>
+        <div>
+          <label for="description" class="uppercase text-xs">Descripcion</label>
+        <Textarea name="description" id="description" bind:value={description}/>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3">
+      <span class="uppercase text-xs font-bold text-muted-foreground"># Manejo de Etiquetas</span>
+      <div class="mt-2 flex flex-wrap gap-2">
+        {#each uiState.allTags as tag}
+          {@const tagColors = getTagColor(tag.name)}
+          {@const isSelected = selectedTagIds.has(tag.id)}
+          <button
+            type="button"
+            onclick={() => toggleTag(tag.id)}
+            class={cn(
+              "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[10px] font-bold border-l-2 transition-all cursor-pointer",
+              isSelected 
+                ? `${tagColors.bg} ${tagColors.text} ${tagColors.border} shadow-sm scale-105`
+                : "bg-muted/30 text-muted-foreground/60 border-transparent opacity-70 hover:opacity-100 hover:bg-muted/50"
+            )}
+          >
+            {tag.name}
+            {#if isSelected}
+              <IconCheck size={12} stroke={3} />
+            {/if}
+          </button>
+        {/each}
+      </div>
+      
+      <!-- Campos ocultos para enviar las etiquetas seleccionadas -->
+      {#each Array.from(selectedTagIds) as tagId}
+        <input type="hidden" name="tags" value={tagId} />
+      {/each}
+    </div>
+
+    <div class="mt-8 flex justify-end gap-2">
+      <Button variant="ghost" type="button" onclick={() => isEditing = false} class="hover:bg-destructive">
+        Cancelar
+      </Button>
+      <Button variant="primary" type="submit">
+        Guardar cambios
+      </Button>
+    </div>
+  </form>
+</ModalContainer>
+{/if}

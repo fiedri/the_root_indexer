@@ -1,0 +1,26 @@
+{
+  "name": "The ROOT Indexer",
+  "short_name": "ROOT",
+  "description": "Tu biblioteca de enlaces inteligente para organizar, etiquetar y compartir conocimiento.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#05080B",
+  "theme_color": "#05080B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "developer tools"],
+  "shortcuts": [
+    {
+      "name": "Ver todos los links",
+      "url": "/dashboard",
+      "description": "Abre tu biblioteca personal de enlaces"
+    }
+  ]
+}

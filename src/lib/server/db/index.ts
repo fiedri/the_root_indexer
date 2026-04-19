@@ -9,7 +9,7 @@ if (!DATABASE_URL) {
   throw new Error("DATABASE_URL no está definida. ¡Ponete las pilas con el .env!");
 }
 
-const client = postgres(DATABASE_URL, { prepare: false });
+const client = postgres(DATABASE_URL, { prepare: false, max: 10 });
 export const db = drizzle({ client, schema, 
-  // logger: true
+   // logger: true
  });

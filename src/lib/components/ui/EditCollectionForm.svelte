@@ -1,25 +1,38 @@
 <script lang="ts">
   import Button from "./button/Button.svelte";
   import ModalContainer from "./container/ModalContainer.svelte";
-  import { IconCheck } from "@tabler/icons-svelte";
+  import { IconCheck, IconTrash } from "@tabler/icons-svelte";
   import Input from "./input/input.svelte";
   import SearchInput from "./input/search-input.svelte";
   import { getTagColor } from "./tags/tagColors";
   import { enhance } from "$app/forms";
   import { uiState } from "$lib/state.svelte";
 
-  let { close, allLinks, tags } = $props<{
+  let { close, allLinks, tags, relations } = $props<{
     close: () => void;
     allLinks: any[];
     tags: any[];
+    relations: any[];
   }>();
 
-  // Form State
-  let name = $state("");
-  let description = $state("");
-  let isPublic = $state(false);
+  // Initialize from editingCollection
+  const collection = uiState.editingCollection;
+  
+  // Initialize state
+  let name = $state(collection?.name || "");
+  let description = $state(collection?.description || "");
+  let isPublic = $state(collection?.isPublic || false);
   let searchQuery = $state("");
   let selectedIds = $state(new Set<string>());
+
+  // Use effect to populate selectedIds from relations once or whenever they change
+  $effect(() => {
+    const currentIds = relations
+      .filter(r => r.collectionId === collection?.id)
+      .map(r => r.linkId);
+    selectedIds = new Set(currentIds);
+  });
+  
   let filterTags = $state(new Set<string>());
   let isSubmitting = $state(false);
 
@@ -67,57 +80,47 @@
 </script>
 
 <ModalContainer {close}>
-  <div class="p-3 border-border border-b">
-    <h2 class="text-lg font-bold">Crear colección</h2>
-    <p class="text-sm py-2 text-muted-foreground font-light tracking-tight">
-      Agrupe enlaces en una hoja de ruta o colección inteligente.
-    </p>
+  <div class="p-3 border-border border-b flex justify-between items-center">
+    <div>
+        <h2 class="text-lg font-bold">Editar colección</h2>
+        <p class="text-sm text-muted-foreground font-light tracking-tight">
+          Modifique los detalles de su colección.
+        </p>
+    </div>
+    <form action="?/deleteCollection" method="POST" use:enhance={() => {
+        isSubmitting = true;
+        return async ({ result, update }) => {
+            isSubmitting = false;
+            if (result.type === 'success') {
+                close();
+            }
+            await update();
+        };
+    }}>
+        <input type="hidden" name="id" value={collection.id} />
+        <Button type="submit" variant="ghost" class="text-destructive hover:bg-destructive/10" disabled={isSubmitting}>
+            <IconTrash size={18} />
+        </Button>
+    </form>
   </div>
 
   <form
     class="flex flex-col overflow-hidden min-h-0 gap-3 text-muted-foreground"
     method="POST"
-    action="?/createCollection"
+    action="?/updateCollection"
     use:enhance={() => {
       isSubmitting = true;
-      const tempId = `temp-${Date.now()}`;
-      
-      // Agregamos al state global al toque (Optimistic UI)
-      uiState.addOptimisticCollection({
-        id: tempId,
-        name,
-        description,
-        isPublic,
-        _isOptimistic: true 
-      });
-
-      // Cerramos el modal de una
-      close();
-
       return async ({ result, update }) => {
         isSubmitting = false;
-        
-        // Si hay bardo, lo sacamos de la UI optimista
-        if (result.type !== "success") {
-          uiState.removeOptimisticCollection(tempId);
-        }
-        
-        // Actualizamos los datos reales de la página
-        await update();
-        
-        // Limpiamos el optimista ya que ahora el real debería estar en el Sidebar
-        uiState.removeOptimisticCollection(tempId);
-
-        // Reseteamos el estado si tuvo éxito
         if (result.type === "success") {
-          name = "";
-          description = "";
-          isPublic = false;
-          selectedIds = new Set();
+          close();
         }
+        await update();
       };
     }}
   >
+    <input type="hidden" name="id" value={collection.id} />
+    
     <div
       class="flex-1 overflow-y-auto space-y-5 box-border max-h-80 px-6 mt-3 pt-6"
     >
@@ -144,13 +147,13 @@
           <p class="uppercase text-sm font-bold">Colección pública</p>
           <p class="text-xs tracking-tight">Visible para cualquier persona con el enlace.</p>
         </div>
-        <label class="inline-flex items-center cursor-pointer" for="isPublic">
+        <label class="inline-flex items-center cursor-pointer" for="isPublicEdit">
           <input
             type="checkbox"
             name="isPublic"
             bind:checked={isPublic}
             class="sr-only peer"
-            id="isPublic"
+            id="isPublicEdit"
           />
           <div
             class="peer-checked:bg-primary relative w-9 h-5 bg-background/90 peer-focus:outline-none transition-all rounded-full peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-card after:rounded-full after:h-4 after:w-4 after:transition-all"
@@ -246,7 +249,7 @@
         variant="primary" 
         disabled={!name.trim() || isSubmitting}
       >
-        {isSubmitting ? "Creando..." : "Crear colección"}
+        {isSubmitting ? "Guardando..." : "Guardar cambios"}
       </Button>
     </div>
   </form>

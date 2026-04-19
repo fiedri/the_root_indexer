@@ -1,6 +1,7 @@
 <script>
-    import { IconLink} from '@tabler/icons-svelte';
+    import { IconLink, IconUser} from '@tabler/icons-svelte';
     import Button from './button/Button.svelte';
+    let {user}=$props()
 </script>
 
 <div class="max-w-7xl mx-auto w-full border-b border-border">
@@ -10,13 +11,18 @@
         <span class="sm:text-2xl font-bold text-sm">The ROOT Indexer</span>
     </div>
     <div class="flex md:gap-4 gap-2 font-bold">
-        <!-- <button class="hover:bg-primary sm:px-3 sm:py-2 transition-colors text-muted-foreground hover:text-primary-foreground rounded-md">Sign In</button>
-        <button class="bg-primary text-primary-foreground hover:bg-primary/90
-     sm:px-3 sm:py-2 rounded-md transition-colors">Get Started</button> -->
+      {#if !user}
       <a href="/auth/sign-in">
         <Button variant={"ghost"}>Log in</Button>
       </a>
-     <Button variant={"primary"}>Get Started</Button>
+      <a href="/auth/sign-up">
+        <Button variant={"primary"}>Get Started</Button>
+      </a>
+      {:else}
+      <a href="/dashboard" data-sveltekit-preload-data="hover">
+        <Button variant={"primary"} class="flex flex-row items-center gap-2">Mi cuenta<IconUser size={16}/></Button>
+      </a>
+      {/if}
     </div>
 </nav>
 </div>

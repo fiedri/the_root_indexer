@@ -1,11 +1,34 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 	<head>
 		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+		<meta name="theme-color" content="#05080B" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<!-- SEO Primario -->
+		<title>ROOT Indexer - Tu biblioteca de enlaces inteligente</title>
+		<meta name="title" content="ROOT Indexer - Tu biblioteca de enlaces inteligente" />
+		<meta name="description" content="Organiza, etiqueta y comparte tus enlaces favoritos de forma profesional. La herramienta definitiva para programadores y recolectores de conocimiento." />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://root-indexer.com/" />
+		<meta property="og:title" content="ROOT Indexer - Tu biblioteca de enlaces inteligente" />
+		<meta property="og:description" content="Organiza, etiqueta y comparte tus enlaces favoritos de forma profesional." />
+		<meta property="og:image" content="%sveltekit.assets%/favicon.svg" />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://root-indexer.com/" />
+		<meta property="twitter:title" content="ROOT Indexer - Tu biblioteca de enlaces inteligente" />
+		<meta property="twitter:description" content="Organiza, etiqueta y comparte tus enlaces favoritos de forma profesional." />
+		<meta property="twitter:image" content="%sveltekit.assets%/favicon.svg" />
+
 		%sveltekit.head%
 	</head>
-	<body data-sveltekit-preload-data="hover">
+	<body data-sveltekit-preload-data="hover" class="dark">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

@@ -14,7 +14,18 @@ export const actions: Actions = {
 			});
 		}
 
-		const { error } = await supabase.auth.signInWithPassword({ email, password });
+		let result;
+		try {
+			result = await supabase.auth.signInWithPassword({ email, password });
+		} catch (err) {
+			console.error('Error fatal de conexión con Supabase:', err);
+			return fail(500, { 
+				error: 'Error de red: No se pudo contactar con Supabase. Reintentá en unos segundos.',
+				email 
+			});
+		}
+
+		const { error } = result;
 
 		if (error) {
 			// Errores comunes: "Invalid login credentials"

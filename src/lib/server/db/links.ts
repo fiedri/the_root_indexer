@@ -1,12 +1,13 @@
 import { db } from "./index";
 import { collectionLinks, links, linkTags, tags } from "./schema";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, inArray } from "drizzle-orm";
 
 interface LinkData{
     url: string;
     title: string;
     domain?: string;
     faviconUrl?: string;
+    description?: string;
 }
 
 export const getLinks = async (userId: string) => {
@@ -64,23 +65,34 @@ export const getLinkWithTagsById = async (linkId: string, userId: string) => {
     };
 };
 
-export const createLinkWithTags = async (userId: string, linkData: LinkData, tagIds: string[]) => {
-    return await db.transaction(async (tx)=>{
+export const createFullLink = async (userId: string, linkData: Partial<LinkData>, tagIds: string[] = [], collectionIds: string[] = []) => {
+    return await db.transaction(async (tx) => {
         const [newLink] = await tx.insert(links).values({
             ...linkData,
             userId
         }).returning();
 
-        if(tagIds.length > 0){
+        // Insertar tags si hay
+        if (tagIds.length > 0) {
             const linkTagValues = tagIds.map(tagId => ({
                 linkId: newLink.id,
                 tagId
             }));
             await tx.insert(linkTags).values(linkTagValues);
         }
+
+        // Insertar colecciones si hay
+        if (collectionIds.length > 0) {
+            const collectionLinkValues = collectionIds.map(collectionId => ({
+                collectionId,
+                linkId: newLink.id
+            }));
+            await tx.insert(collectionLinks).values(collectionLinkValues);
+        }
+
         return newLink;
-    })
-}
+    });
+};
 
 export const updateLink = async (userId: string, linkId: string, linkData: Partial<LinkData>, tagIds?: string[]) => {
     return await db.transaction(async (tx) => {
@@ -113,22 +125,15 @@ export const updateLink = async (userId: string, linkId: string, linkData: Parti
 }
 
 
-export const deleteLink = async (userId: string, linkId: string) => {
-    return await db.transaction(async (tx) => {
-        const [link] = await tx.select()
-            .from(links)
-            .where(and(eq(links.id, linkId), eq(links.userId, userId)))
-            .limit(1);
-
-        if (!link) {
-            return null; 
-        }
-
-        await tx.delete(linkTags).where(eq(linkTags.linkId, linkId));
-        await tx.delete(collectionLinks).where(eq(collectionLinks.linkId, linkId));
-
-        return await tx.delete(links)
-            .where(eq(links.id, linkId))
-            .returning();
-    });
-}
+export const deleteLinks = async (userId: string, linkIds: string[]) => {
+    if (linkIds.length === 0) return [];
+    
+    return await db.delete(links)
+        .where(
+            and(
+                eq(links.userId, userId),
+                inArray(links.id, linkIds)
+            )
+        )
+        .returning();
+};

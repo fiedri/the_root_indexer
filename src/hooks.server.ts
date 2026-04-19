@@ -1,4 +1,4 @@
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, NODE_ENV } from '$env/static/public'
 import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 
@@ -15,41 +15,51 @@ export const handle: Handle = async ({ event, resolve }) => {
          * requiring this to be set, setting the path to an empty string
          * will replicate previous/standard behavior (https://kit.svelte.dev/docs/types#public-types-cookies)
          */
-        cookiesToSet.forEach(({ name, value, options }) =>
-          event.cookies.set(name, value, { ...options, path: '/' })
+        cookiesToSet.forEach(({ name, value, options }) => 
+          event.cookies.set(name, value, { ...options, path: '/', secure: NODE_ENV != 'development' })
         )
-        if (Object.keys(headers).length > 0) {
-          event.setHeaders(headers)
+        if (headers) {
+          Object.entries(headers).forEach(([name, value]) => {
+            if (value && !['cache-control', 'expires', 'pragma'].includes(name.toLowerCase())) {
+              try {
+                event.setHeaders({ [name]: value });
+              } catch (e) {
+                // Si ya está seteado, SvelteKit tira error. Lo ignoramos para que no muera la app.
+              }
+            }
+          });
         }
       },
     },
   })
 
-  /**
-   * Unlike `supabase.auth.getSession()`, which returns the session _without_
-   * validating the JWT, this function also calls `getUser()` to validate the
-   * JWT before returning the session.
-   */
+  
+  let cachedSession: { session: any, user: any } | null = null;
+
   event.locals.safeGetSession = async () => {
-    const {
-      data: { session },
-    } = await event.locals.supabase.auth.getSession()
-    if (!session) {
-      return { session: null, user: null }
+    if (cachedSession) return cachedSession;
+
+    try {
+      const { data: { user }, error } = await event.locals.supabase.auth.getUser();
+
+      if (error || !user) {
+        cachedSession = { session: null, user: null };
+        return cachedSession;
+      }
+
+      const { data: { session } } = await event.locals.supabase.auth.getSession();
+      cachedSession = { session, user };
+      return cachedSession;
+    } catch (err) {
+      console.error('Supabase auth error (likely network/timeout):', err);
+      cachedSession = { session: null, user: null };
+      return cachedSession;
     }
+  };
 
-    const {
-      data: { user },
-      error,
-    } = await event.locals.supabase.auth.getUser()
-    if (error) {
-      // JWT validation has failed
-      return { session: null, user: null }
-    }
-
-    return { session, user }
-  }
-
+  // ELIMINAMOS EL AWAIT DE AQUÍ PARA NO BLOQUEAR LA RESPUESTA
+  // event.locals.user lo manejaremos en los load si es necesario o lo dejamos como getter
+  
   return resolve(event, {
     filterSerializedResponseHeaders(name) {
       return name === 'content-range' || name === 'x-supabase-api-version'
