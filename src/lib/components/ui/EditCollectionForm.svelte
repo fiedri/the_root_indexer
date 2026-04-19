@@ -156,7 +156,7 @@
             id="isPublicEdit"
           />
           <div
-            class="peer-checked:bg-primary relative w-9 h-5 bg-background/90 peer-focus:outline-none transition-all rounded-full peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-card after:rounded-full after:h-4 after:w-4 after:transition-all"
+            class="peer-checked:bg-primary/30 relative w-9 h-5 bg-black peer-focus:outline-none transition-all rounded-full peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-primary after:rounded-full after:h-4 after:w-4 after:transition-all"
           ></div>
         </label>
       </div>
