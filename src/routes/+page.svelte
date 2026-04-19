@@ -4,25 +4,33 @@
 
     import Footer from "$lib/components/ui/Footer.svelte";
     import Navbar from "$lib/components/ui/navbar.svelte";
-    import { IconBolt } from "@tabler/icons-svelte";
-    import { IconTag } from "@tabler/icons-svelte";
-    import { IconSearch } from "@tabler/icons-svelte";
+    import { IconBolt,IconTag,IconSearch,IconFolderOpen, IconDevicesDown} from "@tabler/icons-svelte";
     let {data} = $props()
     let user = $derived(data.session?.user)
     let cards = [
+
         {
             icon: IconBolt,
             title: "Extraccion de metadata automatica",
-            paragragh: "Pegue una URL y automáticamente obtendremos títulos, descripciones y sugeriremos etiquetas de programación relevantes." 
+            paragragh: "Pegue una URL y automáticamente se obtendra títulos y descripciones" 
         },{
             icon: IconTag,
             title: "Etiquetado Inteligente",
-            paragragh: "¿Enlaces sobre Python, Rust, SQL o Git? El sistema detecta y sugiere automáticamente etiquetas técnicas relevantes."
+            paragragh: "Sistema de etiquetas con filtrado para encontrar lo que buscas."
         },
         {
             icon: IconSearch,
             title: "Busqueda intantanea",
             paragragh: "Búsqueda de texto completo en todos sus enlaces. Encuentra ese tutorial que guardaste hace meses en segundos."
+        },{
+            icon: IconFolderOpen,
+            title: "Colecciones Compartibles",
+            paragragh: "Agrupa tus enlaces en colecciones y compartelas con el mundo mediante enlaces publicos. Ideal para crear Roadmaps"
+        },
+        {
+            icon: IconDevicesDown,
+            title: "Instalable",
+            paragragh: "Instala la aplicacion en tu telefono o escritorio para un acceso rapido y una experiencia nativa."
         }
     ]
 </script>

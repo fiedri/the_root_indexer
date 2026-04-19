@@ -258,7 +258,7 @@
                 <div class="flex flex-col gap-6">
                     {#each pagedLinks as link (link.id)}
                         <div in:blur>
-                            <LinkCard {...link} favicon_url={link.faviconUrl} onDelete={handleRemoveLink}/>
+                            <LinkCard {...link} favicon_url={link.faviconUrl} onDelete={handleRemoveLink} onEdit="yes"/>
                         </div>
                     {/each}
                     {#if displayLimit < allFilteredLinks.length}

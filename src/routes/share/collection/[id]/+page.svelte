@@ -106,6 +106,7 @@
                                 {#each filteredLinks as link (link.id)}
                                     <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <LinkCard 
+                                            id={link.id}
                                             title={link.title} 
                                             domain={link.domain || ''} 
                                             favicon_url={link.faviconUrl || ''} 
