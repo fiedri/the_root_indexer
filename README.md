@@ -1,42 +1,51 @@
-# sv
+# ROOT Indexer 🚀
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+**ROOT Indexer** es tu biblioteca personal e inteligente de enlaces. Nacida de la necesidad de un programador de organizar recursos técnicos, esta herramienta permite capturar, etiquetar y estructurar el conocimiento de forma eficiente.
 
-## Creating a project
+Más que un simple gestor de marcadores, ROOT Indexer está diseñado para convertir el caos de enlaces sueltos en **colecciones con propósito**: roadmaps de aprendizaje, listas de recursos para proyectos o cursos compartidos.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## ✨ Características
 
-```sh
-# create a new project
-npx sv create my-app
-```
+- **Gestión de Enlaces**: Guarda links con extracción automática de metadatos (favicon, dominio).
+- **Etiquetado Inteligente**: Sistema de tags con filtrado para encontrar lo que buscás.
+- **Colecciones Compartibles**: Agrupá tus enlaces en colecciones y compartelas con el mundo mediante enlaces públicos. Ideal para crear Roadmaps.
+- **PWA Ready**: Instalá la aplicación en tu móvil o escritorio para un acceso rápido y una experiencia nativa.
 
-To recreate this project with the same configuration:
+## 🛠️ Tech Stack
 
-```sh
-# recreate this project
-pnpm dlx sv@0.12.8 create --template minimal --types ts --add tailwindcss="plugins:typography,forms" mcp="ide:gemini+setup:remote" --install pnpm root_indexer
-```
+- **Framework**: [Svelte 5](https://svelte.dev/)
+- **Meta-framework**: [SvelteKit](https://kit.svelte.dev/).
+- **Backend/Auth**: [Supabase](https://supabase.com/).
+- **ORM**: [Drizzle ORM](https://orm.drizzle.team/).
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/).
+- **Iconos**: [Tabler Icons](https://tabler-icons.io/).
 
-## Developing
+## 🚀 Instalación y Desarrollo
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Para levantar el proyecto localmente, seguí estos pasos:
 
-```sh
-npm run dev
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/tu-usuario/root-indexer.git
+   cd root-indexer
+   ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+2. **Instalar dependencias:**
+   ```bash
+   pnpm install
+   ```
 
-## Building
+3. **Configurar el entorno:**
+   Copia el archivo `.env.example` a `.env` y completá tus credenciales de Supabase y la URL de tu base de datos.
+   ```bash
+   cp .env.example .env
+   ```
 
-To create a production version of your app:
+4. **Correr en modo desarrollo:**
+   ```bash
+   pnpm run dev
+   ```
 
-```sh
-npm run build
-```
+## 📂 Estructura de Colecciones
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+El objetivo de ROOT Indexer es la capacidad de compartir. Si sos educador o simplemente querés ayudar a otros, podés crear una colección pública y pasar el link. El receptor verá una página optimizada para el consumo de esos recursos, sin necesidad de estar logueado.
