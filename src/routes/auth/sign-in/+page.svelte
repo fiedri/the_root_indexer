@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { IconLink, IconAlertCircle } from "@tabler/icons-svelte";
+    import { IconLink, IconAlertCircle, IconEye, IconEyeOff } from "@tabler/icons-svelte";
     import { Input } from "$lib/components/ui/input/index.js";
     import Button from "$lib/components/ui/button/Button.svelte";
     import { enhance } from "$app/forms";
@@ -7,6 +7,7 @@
 
     // Svelte 5: Estado de carga
     let isLoading = $state(false);
+    let showPassword = $state(false);
 
     // Svelte 5: Recibimos el objeto 'form' con los errores del servidor
     let { form } = $props() as { form: ActionData };
@@ -56,14 +57,29 @@
 
             <div class="flex flex-col gap-1.5">
                 <label for="password" class="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Contraseña</label>
-                <Input 
-                    name="password" 
-                    type="password" 
-                    placeholder="••••••••" 
-                    id="password" 
-                    class={form?.error ? 'border-destructive focus-visible:ring-destructive' : ''}
-                    required 
-                />
+                <div class="relative">
+                    <Input 
+                        name="password" 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="••••••••" 
+                        id="password" 
+                        class={form?.error ? 'border-destructive focus-visible:ring-destructive pr-10' : 'pr-10'}
+                        required 
+                    />
+                    <button 
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        onclick={() => showPassword = !showPassword}
+                        tabindex="-1"
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    >
+                        {#if showPassword}
+                            <IconEyeOff size={18} />
+                        {:else}
+                            <IconEye size={18} />
+                        {/if}
+                    </button>
+                </div>
             </div>
 
             <Button 

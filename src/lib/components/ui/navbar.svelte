@@ -13,10 +13,10 @@
     <div class="flex md:gap-4 gap-2 font-bold">
       {#if !user}
       <a href="/auth/sign-in">
-        <Button variant={"ghost"}>Log in</Button>
+        <Button variant={"ghost"}>Iniciar sesión</Button>
       </a>
       <a href="/auth/sign-up">
-        <Button variant={"primary"}>Get Started</Button>
+        <Button variant={"primary"}>Comenzar</Button>
       </a>
       {:else}
       <a href="/dashboard" data-sveltekit-preload-data="hover">

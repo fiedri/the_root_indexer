@@ -17,7 +17,7 @@ Gestiona y recupera al instante todos tus recursos de programación sin perder n
             <Button variant="primary" class="text-sm sm:text-base px-8 py-3 w-full">Comienza a construir tu cerebro &rarr;</Button>
         </a>
         <a href="/auth/sign-in" class="w-full sm:w-auto">
-            <Button variant="outline" class="text-sm sm:text-base px-8 py-3 hover:bg-secondary w-full">Log in</Button>
+            <Button variant="outline" class="text-sm sm:text-base px-8 py-3 hover:bg-secondary w-full">Iniciar sesión</Button>
         </a>
         {:else}
         <a href="/dashboard" data-sveltekit-preload-data="hover">

@@ -1,10 +1,13 @@
 <script lang="ts">
-    import { IconUserPlus, IconAlertCircle } from "@tabler/icons-svelte";
+    import { IconUserPlus, IconAlertCircle, IconEye, IconEyeOff } from "@tabler/icons-svelte";
     import { Input } from "$lib/components/ui/input/index.js";
     import Button from "$lib/components/ui/button/Button.svelte";
     import type { ActionData } from './$types';
 
     let { form } = $props() as { form: ActionData };
+
+    let showPassword = $state(false);
+    let showConfirmPassword = $state(false);
 </script>
 
 <div class="min-h-screen flex justify-center items-center">
@@ -41,26 +44,56 @@
 
             <div class="flex flex-col gap-1.5">
                 <label for="password" class="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Contraseña</label>
-                <Input 
-                    name="password" 
-                    type="password" 
-                    placeholder="Mínimo 6 caracteres" 
-                    id="password" 
-                    class={form?.error ? 'border-destructive focus-visible:ring-destructive' : ''}
-                    required 
-                />
+                <div class="relative">
+                    <Input 
+                        name="password" 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="Mínimo 6 caracteres" 
+                        id="password" 
+                        class={form?.error ? 'border-destructive focus-visible:ring-destructive pr-10' : 'pr-10'}
+                        required 
+                    />
+                    <button 
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        onclick={() => showPassword = !showPassword}
+                        tabindex="-1"
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    >
+                        {#if showPassword}
+                            <IconEyeOff size={18} />
+                        {:else}
+                            <IconEye size={18} />
+                        {/if}
+                    </button>
+                </div>
             </div>
 
             <div class="flex flex-col gap-1.5">
                 <label for="confirmPassword" class="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Confirmar Contraseña</label>
-                <Input 
-                    name="confirmPassword" 
-                    type="password" 
-                    placeholder="Repite tu contraseña" 
-                    id="confirmPassword" 
-                    class={form?.error ? 'border-destructive focus-visible:ring-destructive' : ''}
-                    required 
-                />
+                <div class="relative">
+                    <Input 
+                        name="confirmPassword" 
+                        type={showConfirmPassword ? "text" : "password"} 
+                        placeholder="Repite tu contraseña" 
+                        id="confirmPassword" 
+                        class={form?.error ? 'border-destructive focus-visible:ring-destructive pr-10' : 'pr-10'}
+                        required 
+                    />
+                    <button 
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        onclick={() => showConfirmPassword = !showConfirmPassword}
+                        tabindex="-1"
+                        aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    >
+                        {#if showConfirmPassword}
+                            <IconEyeOff size={18} />
+                        {:else}
+                            <IconEye size={18} />
+                        {/if}
+                    </button>
+                </div>
             </div>
 
             <Button class="w-full mt-2 font-bold text-base rounded-2xl" type="submit">

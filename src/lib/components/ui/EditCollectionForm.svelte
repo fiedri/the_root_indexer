@@ -98,7 +98,7 @@
         };
     }}>
         <input type="hidden" name="id" value={collection.id} />
-        <Button type="submit" variant="ghost" class="text-destructive hover:bg-destructive/10" disabled={isSubmitting}>
+        <Button type="submit" variant="ghost" class="text-destructive hover:bg-destructive/10 mt-5 mr-5" disabled={isSubmitting}>
             <IconTrash size={18} />
         </Button>
     </form>
