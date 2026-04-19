@@ -20,8 +20,11 @@
     {/if}
 </button>
 {:else}
-<button 
-    type="button"
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div 
+    role="button"
+    tabindex="0"
     onclick={onclick}
     class="group flex flex-row justify-between items-center text-sm font-bold h-12 px-3 rounded-xl transition-all cursor-pointer w-full
     {isActive ? `${color.bgActive} text-black shadow-inner` : `text-muted-foreground hover:bg-secondary hover:text-foreground`}
@@ -37,5 +40,5 @@
         </button>
     </div>
     {/if}
-</button>
+</div>
 {/if}

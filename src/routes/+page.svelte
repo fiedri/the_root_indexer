@@ -32,9 +32,10 @@
     <h2 class="text-center md:text-3xl text-2xl tracking-tight font-bold capitalize mb-8 leading-tight">Construido para desarrolladores.</h2>
     <div class="md:w-[70%] mx-auto flex flex-col">
         {#each cards as card }
+            {@const Icon = card.icon}
             <div class="bg-card border rounded-2xl p-6 mb-8">
             <div class="text-primary bg-icon sm:p-2 rounded-xl p-1 w-auto inline-block" >
-                <svelte:component this={card.icon} size={24}/>
+                <Icon size={24}/>
              </div>
             <h3 class="font-bold md:text-2xl text-xl my-2.5">{card.title}</h3>
             <p class="text-muted-foreground tracking-tight font-light text-md">{card.paragragh}
