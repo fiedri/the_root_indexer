@@ -1,4 +1,5 @@
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, NODE_ENV } from '$env/static/public'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public'
+import { dev } from '$app/environment'
 import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 
@@ -16,7 +17,7 @@ export const handle: Handle = async ({ event, resolve }) => {
          * will replicate previous/standard behavior (https://kit.svelte.dev/docs/types#public-types-cookies)
          */
         cookiesToSet.forEach(({ name, value, options }) => 
-          event.cookies.set(name, value, { ...options, path: '/', secure: NODE_ENV != 'development' })
+          event.cookies.set(name, value, { ...options, path: '/', secure: dev ? false : true })
         )
         if (headers) {
           Object.entries(headers).forEach(([name, value]) => {
