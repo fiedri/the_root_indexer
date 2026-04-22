@@ -8,7 +8,7 @@
     <nav class="bg-background h-20 text-card-foreground sm:px-8 sm:py-6 px-2 flex items-center justify-between">
     <div class="flex items-center justify-center gap-1.5">
         <div class="text-primary bg-icon sm:p-2 rounded-xl p-1" ><IconLink size={20} stroke={2.5}/></div>
-        <span class="sm:text-2xl font-bold text-sm">The ROOT Indexer</span>
+        <a class="sm:text-2xl font-bold text-sm" href="/">The ROOT Indexer</a>
     </div>
     <div class="flex md:gap-4 gap-2 font-bold">
       {#if !user}
