@@ -4,7 +4,7 @@
     let {user}=$props()
 </script>
 
-<div class="max-w-7xl mx-auto w-full border-b border-border">
+<header class="max-w-7xl mx-auto w-full border-b border-border">
     <nav class="bg-background h-20 text-card-foreground sm:px-8 sm:py-6 px-2 flex items-center justify-between">
     <div class="flex items-center justify-center gap-1.5">
         <div class="text-primary bg-icon sm:p-2 rounded-xl p-1" ><IconLink size={20} stroke={2.5}/></div>
@@ -25,4 +25,4 @@
       {/if}
     </div>
 </nav>
-</div>
+</header>
